@@ -8,11 +8,12 @@ class Character: public Entity
 {
     public:
 
-    int health;
+    int maxHealth,health;
 
     Character():Entity()
     {
-        health = 100;
+        maxHealth = 100;
+        health = maxHealth;
     }
 
     void takeDmg(int dmg)
@@ -29,7 +30,9 @@ class Player: public Character
 
     Player():Character()
     {
-        coins = 0;
+        maxHealth = 10;
+        health = maxHealth;
+        coins = 100;
     }
 
     void coinSpend(int cost)
@@ -58,6 +61,7 @@ class Worker: public Character
     Worker():Character()
     {
         efficiency = 50;
+        pickaxe = Tool();
     }
 
     int getID()
@@ -75,21 +79,33 @@ class Unit: public Character
 {
     public:
 
-    int x, y, armor, dexterity, strength;
+    int armor, dexterity, strength;
     Weapon weapon;
 
     Unit():Character()
     {
-        x=0;
-        y=0;
         armor=1;
         dexterity=1;
-        strength=1;
+        strength=rand()%1+1;
+        weapon = Weapon();
+    }
+
+    bool isAlive()
+    {
+        if(health>0)
+            return true;
+        else    
+            return false;
+    }
+
+    void kill()
+    {
+        health = 0;
     }
 
     int hit()
     {
-        return strength + weapon.power * weapon.integrity / 100;
+        return (int)(strength + weapon.power * weapon.integrity / 100);
     }
 };
 
@@ -104,6 +120,36 @@ class Soldier: public Unit
     {
         health += heal;
     }
+};
+
+class Knight: public Soldier
+{
+    public:
+
+    bool inCombat;
+
+    Knight():Soldier()
+    {
+        inCombat = false;
+    }
+
+    int getID()
+    {
+        return id;
+    }
+};
+
+class Archer: public Soldier
+{
+    public:
+
+    bool hasShot;
+
+    Archer():Soldier()
+    {
+        weapon.range = rand()%5+3;
+        hasShot = false;
+    }
 
     int getID()
     {
@@ -115,33 +161,39 @@ class Enemy: public Unit
 {
     public:
 
-    int mvSpeed, goldValue, dmgValue;
+    int x,y,mvSpeed, goldValue, dmgValue;
+    bool inCombat;
 
     Enemy():Unit()
     {
+        x=0;
+        y=0;
+        maxHealth = rand()%301 + 100;
+        health = maxHealth;
         mvSpeed=1;
         goldValue=10;
         dmgValue=1;
+        inCombat = false;
     }
 
     void moveUp()
     {
-        x -= 1;
+        y -= mvSpeed;
     }
 
     void moveDown()
     {
-        x += 1;
+        y += mvSpeed;
     }
 
     void moveRight()
     {
-        y += 1;
+        x += mvSpeed;
     }
 
     void moveLeft()
     {
-        y -= 1;
+        x -= mvSpeed;
     }
 
     int getID()

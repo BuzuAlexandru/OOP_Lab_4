@@ -1,5 +1,6 @@
 #pragma once
 #include "entity.h"
+#include "character.h"
 #include <iostream>
 using namespace std; 
 
@@ -14,7 +15,7 @@ class Map: public Environment
 {
     public:
 
-    int width, height, tile[50][50][5];
+    int width, height, **tile;
 
     Map():Environment()
     {
@@ -48,7 +49,14 @@ class MapComponent: public Environment
     }
 };
 
-class Trap: public MapComponent
+/*class iRange
+{
+    public:
+
+    virtual bool inRange() = 0;
+};*/
+
+class Trap: public MapComponent//, public iRange
 {
     public:
 
@@ -70,18 +78,32 @@ class Trap: public MapComponent
     {
         return id;
     }
+
+    bool inRange(Enemy target)
+    {
+        int xt = target.x, yt = target.y;
+        
+        if(target.x==x && target.y==y)
+            return true;
+        else
+            return false;
+    }
 };
 
-class Tower: public MapComponent
+class Tower: public MapComponent//, public iRange
 {
     public:
 
     int range;
-    Soldier ranger[3];
+    Archer ranger[3];
 
-    Tower():MapComponent()
+    Tower(int x1, int y1):MapComponent()
     {
-        range = 5;
+        x = x1;
+        y = y1;
+        range = rand()%4+5;
+        for(int i=0;i<3;i++)
+            ranger[i] = Archer();
     }
 
     int getID()
@@ -89,35 +111,45 @@ class Tower: public MapComponent
         return id;
     }
 
-    int tRange(int i)
+    bool inRange(Enemy target, int i)
     {
-        return range+ranger[i].weapon.range;
-    }
+        int r = range + ranger[i].weapon.range;
+        int xt = target.x, yt = target.y;
 
+        if(((abs(xt-x)<=r && abs(yt-y)<=r)) && ranger[i].hasShot==false)
+            return true;
+        else
+            return false;
+    }
 };
 
-class Barracks: public MapComponent
+class Barracks: public MapComponent//, public iRange
 {
     public:
 
     int range;
+    Knight fighter[3];
 
     Barracks():MapComponent()
     {
         range = 5;
-    }
-
-    Soldier unit[3];
-
-    void deployUnit(int i, int posx, int posy)
-    {
-        unit[i].x = posx;
-        unit[i].y = posy;
+        for(int i=0;i<3;i++)
+            fighter[i] = Knight();
     }
 
     int getID()
     {
         return id;
+    }
+
+    bool inRange(Enemy target)
+    {
+        int xt = target.x, yt = target.y;
+
+        if((abs(xt-x)<=range && abs(yt-y)<=range))
+            return true;
+        else
+            return false;
     }
 };
 

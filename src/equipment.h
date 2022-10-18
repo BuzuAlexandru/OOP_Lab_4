@@ -33,7 +33,7 @@ class Weapon: public Equipment
 
     Weapon():Equipment()
     {
-        power=0;
+        power=rand()%2+1;
         range=0;
         accuracy=50;
     }
